@@ -37,14 +37,24 @@ public final class CartGeometry {
 
     /** @return every face of {@code type}'s real geometry, colored by group from the given species swatches. */
     public static List<VisibleFace> facesFor(final String type, final int bodyColor, final int wheelColor) {
-        final PartNode root = switch (type) {
+        final PartNode modelRoot = switch (type) {
             case "hand_cart" -> handCart();
             case "animal_cart" -> animalCart();
             case "wagon" -> wagon();
             default -> throw new IllegalArgumentException("Unknown cart type: " + type);
         };
+        // Every real Caryvan renderer applies `poseStack.scale(-1.0F, -1.0F, 1.0F)` before
+        // submitting its model (confirmed directly, e.g. WagonRenderer#submit) -- the standard
+        // vanilla convention that entity-model local space needs both X and Y negated to land in
+        // true world orientation. Mathematically identical to a 180-degree rotation about Z, so
+        // wrapping the real model's own root in one extra node with zRot=PI replicates it exactly
+        // (confirmed live, 2026-10-28: without this, every real-geometry preview rendered upside
+        // down -- correct in silhouette/shape, since the placeholder boxes never had enough visual
+        // asymmetry for this to be noticeable, but genuinely flipped once there was real detail).
+        final PartNode orientedRoot = new PartNode(0, 0, 0, 0, 0, Math.PI);
+        orientedRoot.child(modelRoot);
         final List<VisibleFace> faces = new ArrayList<>();
-        collectFaces(root, bodyColor, wheelColor, faces);
+        collectFaces(orientedRoot, bodyColor, wheelColor, faces);
         return faces;
     }
 
