@@ -9,7 +9,6 @@ import javax.imageio.ImageIO;
 
 import com.github.cerealklla.caryvanimager.color.SpeciesSwatch;
 import com.github.cerealklla.caryvanimager.model.CartGeometry;
-import com.github.cerealklla.caryvanimager.render.Box;
 import com.github.cerealklla.caryvanimager.render.Rasterizer;
 import com.github.cerealklla.caryvanimager.render.VisibleFace;
 
@@ -31,14 +30,9 @@ public final class PreviewRenderer {
     }
 
     public void render(final PreviewRequest request, final Path fullPngFile, final Path smallPngFile) throws IOException {
-        final List<Box> boxes = CartGeometry.boxesFor(request.type());
         final int bodyColor = SpeciesSwatch.averageColor(texturesDir, request.type(), request.bodySpecies());
         final int wheelColor = SpeciesSwatch.averageColor(texturesDir, request.type(), request.wheelSpecies());
-
-        final List<VisibleFace> faces = new java.util.ArrayList<>();
-        for (final Box box : boxes) {
-            faces.addAll(box.faces(box.group() == Box.Group.WHEEL ? wheelColor : bodyColor));
-        }
+        final List<VisibleFace> faces = CartGeometry.facesFor(request.type(), bodyColor, wheelColor);
 
         final BufferedImage full = new Rasterizer(width, height).render(faces);
         final BufferedImage small = new Rasterizer(smallWidth, smallHeight).render(faces);
