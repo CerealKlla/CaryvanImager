@@ -41,9 +41,12 @@ public final class Rasterizer {
         return image;
     }
 
-    /** A fixed, front-biased isometric-ish angle -- same default BluepryntImager uses, good enough for a small crafting-preview icon with no per-structure tuning needed. */
+    /** A fixed, front-biased isometric-ish angle -- same default BluepryntImager uses, good enough for a small crafting-preview icon with no per-structure tuning needed.
+     * Real live-test report, 2026-10-28: the original 35-degree azimuth showed the REAR of the cart
+     * (the crate's closed back wall) instead of the front (the open crate + shaft/handle) -- rotated
+     * 180 degrees around the model to look from the opposite side instead. */
     public static OrthographicCamera defaultCamera() {
-        return OrthographicCamera.of(35.0, 25.0, new Vec3(0, 0, -1));
+        return OrthographicCamera.of(215.0, 25.0, new Vec3(0, 0, -1));
     }
 
     private void rasterizeFace(BufferedImage image, double[] depthBuffer, VisibleFace face,
